@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 class APIClient {
 
-     val BASE_URL :String ="https://api.github.com/users/JakeWharton/"
+    val BASE_URL :String ="https://api.github.com/users/JakeWharton/"
 
 
     fun getRetrofitInstance(): APIServices {

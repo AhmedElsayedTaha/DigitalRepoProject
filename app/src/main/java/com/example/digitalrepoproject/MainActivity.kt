@@ -27,8 +27,10 @@ class MainActivity : AppCompatActivity() {
     /*@BindView(R.id.myRec)
     lateinit var recyclerView :RecyclerView*/
     lateinit var progressBar :ProgressBar
-    lateinit var adapter : ReposAdapter
-    var total =0
+   // lateinit var adapter : ReposAdapter
+    var emptyList = ArrayList<RepoModel>()
+    var adapter = ReposAdapter(this,emptyList)
+
 
 
 
@@ -42,7 +44,8 @@ class MainActivity : AppCompatActivity() {
        progressBar=findViewById(R.id.progressBar)
 
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
         val appUtiles = AppUtiles()
 
         if(appUtiles.isOnline(this)) {
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             //Observe on initial Call
             repoViewModel.getRepoModel()
                 .observe(this, Observer<ArrayList<RepoModel>> { repoList: ArrayList<RepoModel> ->
-                    
+
                      adapter = ReposAdapter(this, repoList)
                     recyclerView.adapter = adapter
 
@@ -74,26 +77,38 @@ class MainActivity : AppCompatActivity() {
             repoViewModel.getPagingData().observe(this, Observer<ArrayList<RepoModel>> {
                 repoList ->
                 adapter.addMoreData(repoList)
-
+                hideProgressBar()
             })
 
             //Recyclerview Scroll listener
             recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    val visibleItemCount = LinearLayoutManager(this@MainActivity).childCount
-                    val pastVisibleItem =
-                        LinearLayoutManager(this@MainActivity).findFirstCompletelyVisibleItemPosition()
-                    total = adapter.itemCount
+                    super.onScrolled(recyclerView, dx, dy)
+                    val visibleItemCount = layoutManager.childCount
+                    val pastVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
+                    val total = adapter.itemCount
 
-                        if(dy>0) {
-                            if ((visibleItemCount + pastVisibleItem) == total-1) {
-                                repoViewModel.dataRepository.myFlag.value=false
+
+                       if(dy>0) {
+                           if ((visibleItemCount + pastVisibleItem) > total-1) {
+                               // repoViewModel.dataRepository.myFlag.value=true
                                 repoViewModel.getPagingData()
                             }
-                        }
+
+                       }
+
+                   // val totalItemCount = LinearLayoutManager(this@MainActivity).itemCount
+                  //  val firstVisibleItemPosition = LinearLayoutManager(this@MainActivity).findFirstVisibleItemPosition()
 
 
-                    super.onScrolled(recyclerView, dx, dy)
+                //    if (isLoading.value==false) {
+                      ///  if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                     //      repoViewModel.getPagingData()
+                      //      repoViewModel.dataRepository.myFlag.value=true
+                      //  }//
+                 //  }
+
+
                 }
             })
         }

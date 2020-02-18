@@ -47,6 +47,7 @@ class DataRepository {
     fun performPagination():MutableLiveData<ArrayList<RepoModel>>{
         myFlag.value=true
         FIRST_PAGE++
+        Log.e("page",""+FIRST_PAGE)
         apiClient.getRetrofitInstance().getRepo(FIRST_PAGE,PAGE_COUNT)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

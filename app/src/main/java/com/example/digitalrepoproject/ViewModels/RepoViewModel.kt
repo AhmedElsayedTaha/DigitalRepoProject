@@ -16,7 +16,7 @@ class RepoViewModel : ViewModel(){
 
     }
 
-    fun getPagingData():LiveData<ArrayList<RepoModel>>{
+    fun getPagingData():MutableLiveData<ArrayList<RepoModel>>{
         val  repoLiveData = dataRepository.performPagination()
         return repoLiveData
     }
