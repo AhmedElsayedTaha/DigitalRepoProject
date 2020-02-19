@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -17,19 +18,18 @@ import butterknife.ButterKnife
 
 import com.example.digitalrepoproject.Adapters.ReposAdapter
 import com.example.digitalrepoproject.Models.RepoModel
+import com.example.digitalrepoproject.RoomArchitecture.JackRoomViewModel
+import com.example.digitalrepoproject.RoomArchitecture.RepoEntity
 import com.example.digitalrepoproject.Utils.AppUtiles
 import com.example.digitalrepoproject.ViewModels.RepoViewModel
 
 
 class MainActivity : AppCompatActivity() {
 
-
-    /*@BindView(R.id.myRec)
-    lateinit var recyclerView :RecyclerView*/
     lateinit var progressBar :ProgressBar
-   // lateinit var adapter : ReposAdapter
     var emptyList = ArrayList<RepoModel>()
     var adapter = ReposAdapter(this,emptyList)
+    val reposSavedList = emptyList<RepoEntity>()
 
 
 
@@ -38,8 +38,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
        val  recyclerView = findViewById<RecyclerView>(R.id.myRec)
        progressBar=findViewById(R.id.progressBar)
 
@@ -48,20 +46,16 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         val appUtiles = AppUtiles()
 
-        if(appUtiles.isOnline(this)) {
-            showProgressBar()
-            val repoViewModel = RepoViewModel()
 
+
+        if(appUtiles.isOnline(this)) {
+            val repoViewModel =  ViewModelProvider(this).get(RepoViewModel::class.java)
             //Observe on showing progress bar or hide it
             repoViewModel.dataRepository.myFlag.observe(this, Observer {
                 t ->
-                if(t){
-                    hideProgressBar()
-                }
+                if(t) hideProgressBar()
                 else showProgressBar()
-
             })
-
 
             //Observe on initial Call
             repoViewModel.getRepoModel()
@@ -87,37 +81,22 @@ class MainActivity : AppCompatActivity() {
                     val visibleItemCount = layoutManager.childCount
                     val pastVisibleItem = layoutManager.findFirstCompletelyVisibleItemPosition()
                     val total = adapter.itemCount
-
-
                        if(dy>0) {
-                           if ((visibleItemCount + pastVisibleItem) > total-1) {
-                               // repoViewModel.dataRepository.myFlag.value=true
+                           if ((visibleItemCount + pastVisibleItem) > total){
+                                repoViewModel.dataRepository.myFlag.value=true
                                 repoViewModel.getPagingData()
+                               repoViewModel.dataRepository.myFlag.value=false
                             }
-
                        }
-
-                   // val totalItemCount = LinearLayoutManager(this@MainActivity).itemCount
-                  //  val firstVisibleItemPosition = LinearLayoutManager(this@MainActivity).findFirstVisibleItemPosition()
-
-
-                //    if (isLoading.value==false) {
-                      ///  if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                     //      repoViewModel.getPagingData()
-                      //      repoViewModel.dataRepository.myFlag.value=true
-                      //  }//
-                 //  }
-
-
                 }
             })
         }
         else {
+
+
+
             Toast.makeText(this,"No Internet Connection",Toast.LENGTH_LONG).show()
         }
-
-
-
 
     }
 
